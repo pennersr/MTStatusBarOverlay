@@ -132,6 +132,9 @@ MAX([UIApplication sharedApplication].statusBarFrame.size.width, [UIApplication 
 #define kErrorText			@"✗"
 #define kErrorFontSize		19.f
 
+// Text that is displayed in the info-Label
+#define kInfoText		@"☞"
+#define kInfoFontSize	22.f
 
 
 ///////////////////////////////////////////////////////
@@ -536,6 +539,10 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 
 - (void)postImmediateFinishMessage:(NSString *)message duration:(NSTimeInterval)duration animated:(BOOL)animated {
 	[self postImmediateMessage:message type:MTMessageTypeFinish duration:duration animated:animated];
+}
+
+- (void)postImmediateInfoMessage:(NSString *)message duration:(NSTimeInterval)duration animated:(BOOL)animated {
+	[self postImmediateMessage:message type:MTMessageTypeInfo duration:duration animated:animated];
 }
 
 - (void)postErrorMessage:(NSString *)message duration:(NSTimeInterval)duration {
@@ -1176,6 +1183,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		// set color of labels depending on messageType
         switch(messageType) {
             case MTMessageTypeFinish:
+            case MTMessageTypeInfo:
                 self.statusLabel1.textColor = kLightThemeFinishedMessageTextColor;
                 self.statusLabel2.textColor = kLightThemeFinishedMessageTextColor;
                 self.finishedLabel.textColor = kLightThemeFinishedMessageTextColor;
@@ -1218,6 +1226,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		// set color of labels depending on messageType
         switch(messageType) {
             case MTMessageTypeFinish:
+            case MTMessageTypeInfo:
                 self.statusLabel1.textColor = kDarkThemeFinishedMessageTextColor;
                 self.statusLabel2.textColor = kDarkThemeFinishedMessageTextColor;
                 self.finishedLabel.textColor = kDarkThemeFinishedMessageTextColor;
@@ -1281,6 +1290,21 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 			// update font and text
 			self.finishedLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:kFinishedFontSize];
 			self.finishedLabel.text = kFinishedText;
+            self.progress = 1.0;
+			break;
+		case MTMessageTypeInfo:
+			// will call hide after delay
+			self.hideInProgress = YES;
+			// show finished-label, hide acitvity indicator
+			self.finishedLabel.hidden = self.hidesActivity;
+			self.activityIndicator.hidden = YES;
+            
+			// stop activity indicator
+			[self.activityIndicator stopAnimating];
+            
+			// update font and text
+			self.finishedLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:kFinishedFontSize];
+			self.finishedLabel.text = kInfoText;
             self.progress = 1.0;
 			break;
 		case MTMessageTypeError:
